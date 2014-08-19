@@ -108,12 +108,14 @@ exe 'syntax keyword jsPrototype prototype '.(exists('g:javascript_conceal_protot
 exe 'syntax keyword jsThis      this      '.(exists('g:javascript_conceal_this')        ? 'conceal cchar='.g:javascript_conceal_this        : '')
 
 "" Statement Keywords
-syntax keyword jsStatement      break continue with
+syntax keyword jsStatement      break continue
+syntax keyword jsWith           with
 syntax keyword jsConditional    if else switch
 syntax keyword jsRepeat         do while for
 syntax keyword jsLabel          case default
 syntax keyword jsKeyword        yield import export default extends class
-syntax keyword jsException      try catch throw finally
+syntax keyword jsException      try catch finally
+syntax keyword jsThrow          throw
 
 syntax keyword jsGlobalObjects   Array Boolean Date Function Iterator Number Object RegExp String Proxy ParallelArray ArrayBuffer DataView Float32Array Float64Array Int16Array Int32Array Int8Array Uint16Array Uint32Array Uint8Array Uint8ClampedArray Intl JSON Math console document window
 syntax match   jsGlobalObjects  /\%(Intl\.\)\@<=\(Collator\|DateTimeFormat\|NumberFormat\)/
@@ -174,13 +176,15 @@ endif "DOM/HTML/CSS
 
 
 "" Code blocks
-syntax cluster jsExpression contains=jsComment,jsLineComment,jsDocComment,jsTemplateString,jsStringD,jsStringS,jsRegexpString,jsNumber,jsFloat,jsThis,jsOperator,jsBooleanTrue,jsBooleanFalse,jsNull,jsFunction,jsArrowFunction,jsGlobalObjects,jsExceptions,jsFutureKeys,jsDomErrNo,jsDomNodeConsts,jsHtmlEvents,jsDotNotation,jsBracket,jsParen,jsBlock,jsFuncCall,jsUndefined,jsNan,jsKeyword,jsStorageClass,jsPrototype,jsBuiltins,jsNoise,jsCommonJS
-syntax cluster jsAll        contains=@jsExpression,jsLabel,jsConditional,jsRepeat,jsReturn,jsStatement,jsTernaryIf,jsException
+syntax cluster jsExpression contains=jsComment,jsLineComment,jsDocComment,jsTemplateString,jsStringD,jsStringS,jsRegexpString,jsNumber,jsFloat,jsThis,jsOperator,jsBooleanTrue,jsBooleanFalse,jsNull,jsFunction,jsArrowFunction,jsGlobalObjects,jsExceptions,jsFutureKeys,jsDomErrNo,jsDomNodeConsts,jsHtmlEvents,jsDotNotation,jsBracket,jsParen,jsBlock,jsFuncCall,jsUndefined,jsNan,jsKeyword,jsStorageClass,jsPrototype,jsBuiltins,jsNoise,jsCommonJS,jsObject,jsControl,jsControlCase
+syntax cluster jsAll        contains=@jsExpression,jsReturn,jsStatement,jsTernaryIf
 syntax region  jsBracket    matchgroup=jsBrackets     start="\[" end="\]" contains=@jsAll,jsParensErrB,jsParensErrC,jsBracket,jsParen,jsBlock,@htmlPreproc fold
 syntax region  jsParen      matchgroup=jsParens       start="("  end=")"  contains=@jsAll,jsParensErrA,jsParensErrC,jsParen,jsBracket,jsBlock,@htmlPreproc fold
-syntax region  jsBlock      matchgroup=jsBraces       start="{"  end="}"  contains=@jsAll,jsParensErrA,jsParensErrB,jsParen,jsBracket,jsBlock,jsObjectKey,@htmlPreproc fold
+syntax region  jsBlock      matchgroup=jsBraces       start="{"  end="}"  contains=@jsAll,jsParensErrA,jsParensErrB,jsParen,jsBracket,jsBlock,@htmlPreproc fold
 syntax region  jsFuncBlock  matchgroup=jsFuncBraces   start="{"  end="}"  contains=@jsAll,jsParensErrA,jsParensErrB,jsParen,jsBracket,jsBlock,@htmlPreproc contained fold
 syntax region  jsTernaryIf  matchgroup=jsTernaryIfOperator start=+?+  end=+:+  contains=@jsExpression,jsTernaryIf
+syntax region  jsObject     matchgroup=jsObjectBraces start="{"  end="}"  contains=@jsExpression,jsObjectKey fold contained
+
 
 "" catch errors caused by wrong parenthesis
 syntax match   jsParensError    ")\|}\|\]"
@@ -203,6 +207,10 @@ syntax match   jsFuncArgRest    contained /\%(\.\.\.[a-zA-Z_$][0-9a-zA-Z_$]*\))/
 syntax keyword jsArgsObj        arguments contained containedin=jsFuncBlock
 
 syntax match jsArrowFunction /=>/
+
+syntax match jsControl /\<\%(if\|else\|while\|do\|for\|switch\|with\|try\|catch\|finally\)\>/ contains=jsConditional,jsRepeat,jsException,jsWith nextgroup=jsControlArgs,jsBlock skipwhite
+syntax region jsControlArgs contained matchgroup=jsParens start='(' end=')' contains=@jsExpression nextgroup=jsBlock skipwhite skipempty
+syntax region jsControlCase start='\<\%(case\|default\)\>' end=':' contains=jsLabel,@jsExpression nextgroup=jsBlock keepend skipwhite skipempty
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already
@@ -246,7 +254,9 @@ if version >= 508 || !exists("did_javascript_syn_inits")
   HiLink jsReturn               Statement
   HiLink jsRepeat               Repeat
   HiLink jsStatement            Statement
+  HiLink jsWith                 Statement
   HiLink jsException            Exception
+  HiLink jsThrow                Exception
   HiLink jsKeyword              Keyword
   HiLink jsArrowFunction        Type
   HiLink jsFunction             Type
@@ -271,6 +281,7 @@ if version >= 508 || !exists("did_javascript_syn_inits")
   HiLink jsBrackets             Noise
   HiLink jsParens               Noise
   HiLink jsBraces               Noise
+  HiLink jsObjectBraces         Noise
   HiLink jsFuncBraces           Noise
   HiLink jsFuncParens           Noise
   HiLink jsSpecial              Special
