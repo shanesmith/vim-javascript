@@ -208,7 +208,7 @@ syntax keyword jsArgsObj        arguments contained containedin=jsFuncBlock
 
 syntax match jsArrowFunction /=>/
 
-syntax match jsControl /\<\%(if\|else\|while\|do\|for\|switch\|with\|try\|catch\|finally\)\>/ contains=jsConditional,jsRepeat,jsException,jsWith nextgroup=jsControlArgs,jsBlock skipwhite
+syntax match jsControl /\<\%(if\|else\|while\|do\|for\|switch\|with\|try\|catch\|finally\)\>/ contains=jsConditional,jsRepeat,jsException,jsWith nextgroup=jsControlArgs,jsBlock skipwhite skipempty
 syntax region jsControlArgs contained matchgroup=jsParens start='(' end=')' contains=@jsExpression nextgroup=jsBlock skipwhite skipempty
 syntax region jsControlCase start='\<\%(case\|default\)\>' end=':' contains=jsLabel,@jsExpression nextgroup=jsBlock keepend skipwhite skipempty
 
